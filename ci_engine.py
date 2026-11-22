@@ -38,6 +38,16 @@ from ci_skills_loader import (
 
 load_dotenv()
 
+# Read secrets from Streamlit Cloud if deployed there
+try:
+    import streamlit as st
+    if hasattr(st, "secrets"):
+        for k, v in st.secrets.items():
+            if isinstance(v, str) and k not in os.environ:
+                os.environ[k] = v
+except Exception:
+    pass
+
 DB_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ci_conversations.sqlite")
 MAX_RECENT_TURNS = 4  # 2 user turns + 2 assistant turns
 
