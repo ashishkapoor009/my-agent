@@ -14,16 +14,6 @@ import os
 import streamlit as st
 from dotenv import load_dotenv
 
-# 1. Bridge Streamlit secrets to environment variables before importing engines
-load_dotenv()
-try:
-    if hasattr(st, "secrets"):
-        for k, v in st.secrets.items():
-            if isinstance(v, str) and k not in os.environ:
-                os.environ[k] = v
-except Exception:
-    pass
-
 from ci_engine import (
     execute_ci_turn,
     load_thread_history,
@@ -32,9 +22,13 @@ from ci_engine import (
     reset_profile,
     ci_skills,
     thread_full_history,
+    sync_secrets,
 )
 from ci_durable_memory import load_profile, PROFILE_FILE
 from ci_semantic_memory import load_knowledge_base, search_semantic_memory
+
+# Synchronize environment variables from Streamlit Cloud secrets
+sync_secrets()
 
 # Page Configuration
 st.set_page_config(
@@ -267,6 +261,9 @@ with st.sidebar:
 # --- MAIN CONTENT ---
 st.title("⚡ Continuous Improvement (CI) Value Stream AI Copilot")
 st.caption("Operational Excellence Decision Support Powered by LangChain, DeepSeek-Chat, and 6-Layer Memory Architecture")
+
+if not os.getenv("DEEPSEEK_API_KEY"):
+    st.warning("⚠️ **DeepSeek API Key is missing**: Please ensure `DEEPSEEK_API_KEY` (or `AI_API_KEY`) is pasted into Streamlit Cloud under **Manage app > Settings > Secrets**.")
 
 with st.expander("🎯 How this App Implements All 6 Memory Concepts", expanded=False):
     st.markdown(

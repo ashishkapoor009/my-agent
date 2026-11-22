@@ -38,15 +38,41 @@ from ci_skills_loader import (
 
 load_dotenv()
 
-# Read secrets from Streamlit Cloud if deployed there
-try:
-    import streamlit as st
-    if hasattr(st, "secrets"):
-        for k, v in st.secrets.items():
-            if isinstance(v, str) and k not in os.environ:
-                os.environ[k] = v
-except Exception:
-    pass
+
+def sync_secrets():
+    """Ensure environment variables are populated from .env, Streamlit secrets, and aliases."""
+    try:
+        import streamlit as st
+        if hasattr(st, "secrets"):
+            for k in [
+                "DEEPSEEK_API_KEY", "deepseek_api_key",
+                "AI_API_KEY", "ai_api_key",
+                "OPENAI_API_KEY", "openai_api_key",
+                "AI_BASE_URL", "ai_base_url",
+                "DEEPSEEK_API_BASE", "deepseek_api_base",
+            ]:
+                if k in st.secrets:
+                    val = str(st.secrets[k]).strip()
+                    if val:
+                        os.environ[k.upper()] = val
+            for k, v in st.secrets.items():
+                if isinstance(v, str) and k.upper() not in os.environ and v.strip():
+                    os.environ[k.upper()] = v.strip()
+    except Exception:
+        pass
+
+    # Alias handling: if DEEPSEEK_API_KEY is not set, map from AI_API_KEY or OPENAI_API_KEY
+    if not os.getenv("DEEPSEEK_API_KEY"):
+        if os.getenv("AI_API_KEY"):
+            os.environ["DEEPSEEK_API_KEY"] = os.environ["AI_API_KEY"]
+        elif os.getenv("OPENAI_API_KEY"):
+            os.environ["DEEPSEEK_API_KEY"] = os.environ["OPENAI_API_KEY"]
+
+    if not os.getenv("DEEPSEEK_API_BASE") and os.getenv("AI_BASE_URL"):
+        os.environ["DEEPSEEK_API_BASE"] = os.environ["AI_BASE_URL"]
+
+
+sync_secrets()
 
 DB_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ci_conversations.sqlite")
 MAX_RECENT_TURNS = 4  # 2 user turns + 2 assistant turns
@@ -56,11 +82,42 @@ sqlite_conn = sqlite3.connect(DB_FILE, check_same_thread=False)
 sqlite_checkpointer = SqliteSaver(sqlite_conn)
 inmemory_checkpointer = InMemorySaver()
 
-# Initialize DeepSeek models
-# Answerer model
-chat_model = init_chat_model("deepseek:deepseek-chat", temperature=0.2, max_tokens=1000)
-# Chooser & Extractor model (fast, deterministic)
-fast_model = init_chat_model("deepseek:deepseek-chat", temperature=0.0, max_tokens=150)
+# Lazy-loaded DeepSeek models to prevent import-time crashes if keys are loading
+_chat_model = None
+_fast_model = None
+
+
+def get_chat_model():
+    """Lazily initialize or return the primary answerer chat model."""
+    global _chat_model
+    if _chat_model is None:
+        sync_secrets()
+        api_key = os.getenv("DEEPSEEK_API_KEY")
+        api_base = os.getenv("DEEPSEEK_API_BASE")
+        kwargs = {"temperature": 0.2, "max_tokens": 1000}
+        if api_key:
+            kwargs["api_key"] = api_key
+        if api_base:
+            kwargs["api_base"] = api_base
+        _chat_model = init_chat_model("deepseek:deepseek-chat", **kwargs)
+    return _chat_model
+
+
+def get_fast_model():
+    """Lazily initialize or return the fast chooser/extractor model."""
+    global _fast_model
+    if _fast_model is None:
+        sync_secrets()
+        api_key = os.getenv("DEEPSEEK_API_KEY")
+        api_base = os.getenv("DEEPSEEK_API_BASE")
+        kwargs = {"temperature": 0.0, "max_tokens": 150}
+        if api_key:
+            kwargs["api_key"] = api_key
+        if api_base:
+            kwargs["api_base"] = api_base
+        _fast_model = init_chat_model("deepseek:deepseek-chat", **kwargs)
+    return _fast_model
+
 
 # Procedural skills
 ci_skills = load_skills()
@@ -106,7 +163,7 @@ def fold_into_executive_summary(current_summary: str, old_messages: List[Dict[st
     ]
 
     try:
-        res = fast_model.invoke(prompt)
+        res = get_fast_model().invoke(prompt)
         return res.content.strip()
     except Exception:
         return current_summary
@@ -192,7 +249,7 @@ def execute_ci_turn(
     new_facts = {}
     profile = load_profile()
     if use_durable_memory:
-        profile, new_facts = update_profile(message, model=fast_model)
+        profile, new_facts = update_profile(message, model=get_fast_model())
         durable_text = profile_as_prompt_text(profile)
 
     # -------------------------------------------------------------
@@ -211,7 +268,7 @@ def execute_ci_turn(
     chosen_skill = None
     procedural_text = ""
     if use_procedural_memory:
-        chosen_skill = choose_skill(fast_model, ci_skills, message)
+        chosen_skill = choose_skill(get_fast_model(), ci_skills, message)
         if chosen_skill:
             procedural_text = (
                 f"\n--- STANDARD OPERATING PROCEDURE (Procedural Memory: {chosen_skill['name']}) ---\n"
@@ -261,7 +318,7 @@ def execute_ci_turn(
     # INVOKE DEEPSEEK
     # -------------------------------------------------------------
     try:
-        ai_reply = chat_model.invoke(messages_to_send)
+        ai_reply = get_chat_model().invoke(messages_to_send)
         reply_content = ai_reply.content.strip()
     except Exception as e:
         reply_content = f"Error communicating with DeepSeek API: {str(e)}"

@@ -69,7 +69,11 @@ def extract_new_facts(message, model=None):
     Returns only non-empty fields that were clearly stated.
     """
     if model is None:
-        model = init_chat_model("deepseek:deepseek-chat", temperature=0.0, max_tokens=200)
+        api_key = os.getenv("DEEPSEEK_API_KEY") or os.getenv("AI_API_KEY") or os.getenv("OPENAI_API_KEY")
+        kwargs = {"temperature": 0.0, "max_tokens": 200}
+        if api_key:
+            kwargs["api_key"] = api_key
+        model = init_chat_model("deepseek:deepseek-chat", **kwargs)
 
     extractor = model.with_structured_output(CILeaderProfile)
     try:
