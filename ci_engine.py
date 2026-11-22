@@ -22,6 +22,7 @@ from langgraph.checkpoint.sqlite import SqliteSaver
 
 from ci_durable_memory import (
     load_profile,
+    save_profile,
     update_profile,
     profile_as_prompt_text,
     PROFILE_FILE,
