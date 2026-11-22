@@ -1,0 +1,83 @@
+[
+  {
+    "id": "KZ-2024-01",
+    "title": "Stamping Press Die Changeover SMED Optimization",
+    "value_stream": "Automotive Metal Stamping Line 4",
+    "problem": "Changeover between Model-X and Model-Y hood panels took 85 minutes, causing severe batching and overproduction waste.",
+    "root_cause": "Tooling bolts required manual ratcheting; hydraulic lines lacked quick disconnects; overhead crane waiting time was 25 minutes.",
+    "countermeasures": "Implemented SMED: converted die bolt fastening to single-turn pneumatic U-clamps, pre-staged dies on dual-station turnover tables, and added quick-couplers for hydraulics.",
+    "results": "Changeover time reduced from 85 minutes to 9.5 minutes (88.8% reduction). Lot sizes reduced by 50%, saving $160,000 in carrying costs.",
+    "keywords": "changeover smed setup time press die stamping single minute exchange of die batching"
+  },
+  {
+    "id": "KZ-2024-02",
+    "title": "SMT Electronics Assembly Line Balancing & Starvation Removal",
+    "value_stream": "PCBA Electronics Surface Mount Tech Cell",
+    "problem": "Line throughput stalled at 62 units/hour against customer takt demand of 80 units/hour. Severe operator idle time and workstation starvation at automated optical inspection (AOI).",
+    "root_cause": "Component placement head on Machine 2 was overburdened (Cycle time 58s vs Takt 45s); inspection nozzle feeder experienced frequent micro-jams.",
+    "countermeasures": "Re-balanced component placement library across Machine 1 and 2; installed dual-track feeder cassette; established 3-piece buffer FIFO queue before AOI.",
+    "results": "Throughput increased from 62 to 84 units/hour. Line balancing efficiency improved from 68% to 94%. Zero downstream station starvation.",
+    "keywords": "line balancing bottleneck starvation takt time cycle time smt placement throughput pacemaker"
+  },
+  {
+    "id": "KZ-2024-03",
+    "title": "Order-to-Delivery Value Stream Lead Time Compression",
+    "value_stream": "Commercial Industrial Valve Custom Assembly",
+    "problem": "Total customer order lead time was 18 business days, while total hands-on value-add work was only 3.5 hours. Process Cycle Efficiency was a dismal 2.4%.",
+    "root_cause": "Batch-and-queue scheduling: engineering releases, machining, hydrostatic pressure testing, and painting operated in weekly batched lots of 50 units with huge inter-stage queues.",
+    "countermeasures": "Re-engineered value stream layout into a cellular U-shaped flow with a single-piece flow pull system triggered by electronic Kanban; created cross-functional cell operators.",
+    "results": "Total lead time plunged from 18 days to 2.5 days (86% reduction). Process Cycle Efficiency (PCE) surged from 2.4% to 17.5%. WIP reduced by $420,000.",
+    "keywords": "value stream mapping vsm lead time process cycle efficiency pce batch and queue pull kanban flow"
+  },
+  {
+    "id": "KZ-2024-04",
+    "title": "Wire Harness Reverse Installation Defect Eradication via Poka-Yoke",
+    "value_stream": "Aerospace Sub-System Wire Harness Assembly",
+    "problem": "Operators occasionally inserted wiring harness connectors 180-degrees inverted, causing terminal pin deformation and intermittent short-circuits at testing (1,450 PPM defect rate).",
+    "root_cause": "Symmetrical rectangular connector design allowed manual insertion force to bypass visual orientation labels under rushed shift conditions.",
+    "countermeasures": "Level-3 Poka-Yoke design change: 3D-printed asymmetrical guide keying blocks on the mating jig, making inverted insertion physically impossible. Added automated continuity interlock light.",
+    "results": "Defect rate dropped from 1,450 PPM to 0 PPM (Zero defects over 180,000 cycles). Avoided customer warranty rework penalties of $92,000.",
+    "keywords": "defect poka yoke mistake proofing fmea connector insertion orientation rpn quality"
+  },
+  {
+    "id": "KZ-2024-05",
+    "title": "5-Whys Investigation on Hydraulic Pressure Fluctuation & Unplanned Stoppages",
+    "value_stream": "Precision CNC Milling Cell 2",
+    "problem": "Spindle feed rate intermittently stalled during heavy face-milling, triggering error E-402 and halting the cell 14 times per week (average 22 mins per stop).",
+    "root_cause": "5-Whys identified oil cavitation; oil level was low; pump was sucking air; reservoir sight glass was clouded by degraded synthetic fluid; preventative maintenance interval lacked sight glass cleaning protocol.",
+    "countermeasures": "Cleaned hydraulic circuit, replaced clouded sight glass with high-visibility float tube, added digital pressure transducer interlock with automated low-level warning, updated TPM weekly standard work.",
+    "results": "Unplanned machine stops dropped from 14/week to zero in 90 days. Machine Overall Equipment Effectiveness (OEE) rose from 71.2% to 88.5%.",
+    "keywords": "5 whys root cause analysis rca machine downtime hydraulic pressure maintenance breakdown oee"
+  },
+  {
+    "id": "KZ-2024-06",
+    "title": "Packaging Line Warehouse Gemba Walk Waste Elimination",
+    "value_stream": "Pharmaceutical Finished Goods Packaging & Kitting",
+    "problem": "Packers logged over 8 kilometers of operator walking per shift, suffering physical fatigue and failing daily carton fulfillment quotas by 18%.",
+    "root_cause": "Gemba walk spaghetti mapping revealed extreme Motion and Transportation wastes: corrugated carton blanks, bubble wrap, and label printers were located 30 meters away from packing stations.",
+    "countermeasures": "Implemented Point-of-Use Tooling (POUT) and 5S workstation redesign. Positioned cantilever overhead gravity-feed carton racks and mobile thermal label dispensers directly at each operator station.",
+    "results": "Operator walking distance slashed by 74% (from 8.2 km to 2.1 km per shift). Packaging throughput increased by 26%, meeting 100% of daily fulfillment targets.",
+    "keywords": "gemba walk 8 wastes downtime motion transportation 5s walking fatigue operator ergonomics"
+  },
+  {
+    "id": "KZ-2024-07",
+    "title": "Medical Sterilization WIP Reduction via Drum-Buffer-Rope Pull System",
+    "value_stream": "Surgical Instrument Cleanroom Packaging",
+    "problem": "Sterilization autoclave chambers were overloaded with WIP queues, creating average wait times of 36 hours and frequent expedited rush orders.",
+    "root_cause": "Autoclave was treated as an isolated batch operation; upstream cleanrooms pushed finished packs as fast as possible regardless of autoclave capacity.",
+    "countermeasures": "Established Drum-Buffer-Rope (DBR) scheduling from Theory of Constraints: established autoclave as the drum pacemaker, capped buffer at 4 hours of work, tied release rope to upstream bagging.",
+    "results": "WIP waiting time reduced from 36 hours to 4.2 hours. Autoclave utilization increased from 74% to 93% without adding capital equipment.",
+    "keywords": "theory of constraints toc drum buffer rope wip queue bottleneck sterilization pull scheduling"
+  },
+  {
+    "id": "KZ-2024-08",
+    "title": "Paint Shop Surface Blemish DMAIC Project",
+    "value_stream": "Appliance Outer Enclosure Powder Coating",
+    "problem": "Surface orange peel and pinhole blemishes caused a 9.4% first-run scrap and rework rate, costing $210,000 annually.",
+    "root_cause": "Analyze phase revealed gun voltage fluctuation and relative humidity swings exceeding 65% during afternoon shifts, altering powder charge adhesion.",
+    "countermeasures": "Installed closed-loop electrostatic voltage controllers, sealed the pre-treatment booth with positive air pressure, and instituted daily standard work for ground-hook burn-off.",
+    "results": "Rework rate dropped from 9.4% to 0.8%. Annual direct cost savings of $185,000 verified by corporate finance. Project transitioned into Control Plan.",
+    "keywords": "dmaic charter project scrap rework powder coating paint defect quality yield six sigma"
+  }
+]
+
