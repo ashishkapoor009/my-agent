@@ -252,10 +252,18 @@ with st.sidebar:
             st.caption(f"Knowledge Base contains {len(all_cases)} institutional cases.")
 
     with st.expander("🛠️ View Lean Playbooks (Skills)", expanded=False):
-        skill_names = list(ci_skills.keys())
-        chosen_s = st.selectbox("Playbook", options=skill_names)
-        if chosen_s:
-            st.markdown(ci_skills[chosen_s]["body"][:600] + "\n\n*(Truncated preview)*")
+        if isinstance(ci_skills, dict):
+            skill_names = list(ci_skills.keys())
+            chosen_s = st.selectbox("Playbook", options=skill_names) if skill_names else None
+            if chosen_s and isinstance(ci_skills[chosen_s], dict):
+                st.markdown(ci_skills[chosen_s].get("body", "")[:600] + "\n\n*(Truncated preview)*")
+        else:
+            skill_names = [s["name"] for s in ci_skills if isinstance(s, dict) and "name" in s]
+            chosen_s = st.selectbox("Playbook", options=skill_names) if skill_names else None
+            if chosen_s:
+                chosen_skill_obj = next((s for s in ci_skills if s.get("name") == chosen_s), None)
+                if chosen_skill_obj:
+                    st.markdown(chosen_skill_obj.get("body", "")[:600] + "\n\n*(Truncated preview)*")
 
 
 # --- MAIN CONTENT ---
